@@ -37,7 +37,7 @@ class Aspiradora_Agent(Agent):
         
         if self.position in self.model.grid.get_cell_list_contents(self.position):
             
-            self.aspirar
+            ...
         
         else:
             self.move()
