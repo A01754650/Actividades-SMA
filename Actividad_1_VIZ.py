@@ -7,31 +7,36 @@ from mesa.visualization.ModularVisualization import ModularServer
 
 
 def agent_portrayal(agent):
-    portrayal = {"Shape": "circle",
-                 "Filled": "true",
-                 "Layer": 0,
-                 "Color": "red",
-                 "r": 0.5}
+    portrayal = {}
+    if type(agent) is AspiradoraAgent:
+        portrayal = {"Shape": "circle",
+                     "Filled": "true",
+                     "Layer": 1,
+                     "Color": "blue",
+                     "r": 0.5}
+    if type(agent) is BasuraAgent:
+        portrayal = {"Shape": "rect",
+                     "Filled": "true",
+                     "Layer": 1,
+                     "Color": "gray",
+                     "w": 1,
+                     "h": 1
+                     }
+        if(agent.live == 0):
+            portrayal["Color"] = "white"
+#    print(type(agent))
 
-    if agent.live == 1: #Rojos grandes cuando están vivos
-        portrayal["Color"] = "red"
-        portrayal["Layer"] = 0
-    elif agent.live == 2:
-        portrayal["Color"] = "blue"
-        portrayal["Layer"] = 0
-    else:
-        portrayal["Color"] = "grey" #Grises pequeños al morir
-        portrayal["Layer"] = 1
-        portrayal["r"] = 0.1
 
     return portrayal
 
 ancho = 28
 alto = 28
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
-server = ModularServer(GameLifeModel,
+server = ModularServer(MapaModel,
                        [grid],
-                       "Game of Life Model",
-                       {"width":ancho, "height":alto})
+                       "Cleaning the grid",
+                       {"width":ancho, "height":alto, 
+                        "num_agents": 100, "dirty_percentage": 
+                        70, "max_steps": 40})
 server.port = 8521 # The default
 server.launch()
