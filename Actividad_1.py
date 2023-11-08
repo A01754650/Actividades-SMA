@@ -10,6 +10,7 @@ class Aspiradora_Agent(Agent):
 
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
+        self.live = 2
         self.position = (1, 1)
 
     def movimiento(self):
@@ -30,7 +31,16 @@ class Aspiradora_Agent(Agent):
                 new_x = x + x2
                 new_y = y + y2
                 posicion_nueva = (new_x, new_y)
-
+                
+    
+    def step(self):
+        
+        if self.position in self.model.grid.get_cell_list_contents(self.position):
+            
+            self.aspirar
+        
+        else:
+            self.move()
 
 
 class Basura_Agent(Agent):
