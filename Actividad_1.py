@@ -1,7 +1,7 @@
 # La clase `Model` se hace cargo de los atributos a nivel del modelo, maneja los agentes.
 # Cada modelo puede contener múltiples agentes y todos ellos son instancias de la clase `Agent`.
 from mesa import Agent, Model
-from mesa.time import SimultaneousActivation
+from mesa.time import BaseScheduler, SimultaneousActivation, StagedActivation
 from mesa.space import MultiGrid 
 from time import sleep, time, process_time
 import numpy as np
@@ -31,6 +31,7 @@ class AspiradoraAgent(Agent):
                                     and abs(py - self.position[1]) <= 1])
         new_position = self.random.choice(possible_steps)
         cell = self.model.grid.get_cell_list_contents(new_position)
+<<<<<<< HEAD
         #print(new_position)
         for trash in cell:
 <<<<<<< HEAD
@@ -42,6 +43,13 @@ class AspiradoraAgent(Agent):
 =======
             if type(trash) is BasuraAgent:
                 trash.live = 0
+=======
+#        print(cell)
+        for value in cell:
+            if type(value) is BasuraAgent:
+                self.model.grid.remove_agent(value)
+                cell = self.model.grid.get_cell_list_contents(new_position)
+>>>>>>> b5e254b (ya no se pueden parar dos aspiradoras en el mismo lugar)
                 self.cleaned+=1
 >>>>>>> e22bfa0 (hola)
                 break
@@ -51,8 +59,10 @@ class AspiradoraAgent(Agent):
         #print(f'celdas sucias: {self.model.celdas_sucias}')
                 
 
-        self.position = new_position
-        self.model.grid.move_agent(self, new_position)
+
+        if len(cell) == 0:
+            self.position = new_position
+            self.model.grid.move_agent(self, new_position)
 
     def step(self):
         self.move()
@@ -61,7 +71,10 @@ class AspiradoraAgent(Agent):
         print("",end="")
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b5e254b (ya no se pueden parar dos aspiradoras en el mismo lugar)
 class BasuraAgent(Agent):
 
     def __init__(self, unique_id, model, state):

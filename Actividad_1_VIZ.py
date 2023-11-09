@@ -35,8 +35,8 @@ def agent_portrayal(agent):
 
 ancho = 40
 alto = 40
-num_agents = 50
-dirty_percentage = 25
+num_agents = 50 
+dirty_percentage = 90 
 max_steps = 40
 grid = CanvasGrid(agent_portrayal, ancho, alto, 600, 600)
 server = ModularServer(
