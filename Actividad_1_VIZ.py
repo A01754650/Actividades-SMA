@@ -33,12 +33,14 @@ def agent_portrayal(agent):
 
     return portrayal
 
-ancho = 10
+
+ancho = 10 
 alto = 10
 num_agents = 50 
 dirty_percentage = 90 
-max_time = 40
-grid = CanvasGrid(agent_portrayal, ancho, alto, 600, 600)
+max_steps = 40
+grid = CanvasGrid(agent_portrayal, ancho, alto, 800, 800)
+
 server = ModularServer(
     MapaModel,
     [grid],
