@@ -3,7 +3,7 @@
 from mesa import Agent, Model
 from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid 
-from time import sleep
+from time import sleep, time
 import numpy as np
 import random
 
@@ -12,7 +12,7 @@ class AspiradoraAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.live = 1
-        self.position = (0, 0)
+        self.position = (1, 1)
 
     def move(self):
         positions = self.model.grid.get_neighborhood(
@@ -25,12 +25,19 @@ class AspiradoraAgent(Agent):
                                     and abs(py - self.position[1]) <= 1])
         new_position = self.random.choice(possible_steps)
         cell = self.model.grid.get_cell_list_contents(new_position)
-#        print(cell)
+        print(new_position)
         for trash in cell:
-            print(type(trash))
+            print(trash)
             if type(trash) is BasuraAgent:
                 trash.live = 0
+                self.model.grid.remove_agent(trash)
+                self.model.cleaned_cells += 1
                 break
+            elif type(trash) is AspiradoraAgent:
+                new_position = self.position
+        print(f'celdas limpias: {self.model.cleaned_cells}')
+        print(f'celdas sucias: {self.model.celdas_sucias}')
+                
 
         self.position = new_position
         self.model.grid.move_agent(self, new_position)
@@ -50,7 +57,7 @@ class BasuraAgent(Agent):
         self.live = state 
 
 class MapaModel(Model):
-
+    
     def __init__(self, width, height, num_agents, dirty_percentage, max_steps):
         self.num_agents = num_agents
         self.dirty_percentage = dirty_percentage
@@ -58,19 +65,22 @@ class MapaModel(Model):
         self.grid = MultiGrid(width, height, True)
         self.schedule = SimultaneousActivation(self)
         self.cleaned_cells = 0
+        self.celdas_sucias = 0
         self.running = True  # Para la visualizacion usando navegador
-
+        
+        
+        num_sucias = (width * height * self.dirty_percentage) // 100
+        self.celdas_sucias= num_sucias
         for i in range(self.num_agents):
             agent = AspiradoraAgent(i, self)
             self.grid.place_agent(agent, (0,0))
             self.schedule.add(agent)
 
-        num_sucias = (width * height * self.dirty_percentage) // 100
+        
         for _ in range(num_sucias):
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             cell = self.grid.get_cell_list_contents((x, y))
-            print(not cell)
             res = not cell
             if not cell:
                 dirt = BasuraAgent((x,y),self, 1)
@@ -84,10 +94,23 @@ class MapaModel(Model):
                     if not cell:
                         dirt = BasuraAgent((x,y),self, 1)
                         self.grid.place_agent(dirt, (x, y))
+                        
 
-                    
-                    
     def step(self):
         self.schedule.step()
+        print(self.cleaned_cells)
+        
+        if(self.cleaned_cells == self.celdas_sucias):
+            self.running = False
+
+
+
+
+
+
+
+
+
+        
 
  
