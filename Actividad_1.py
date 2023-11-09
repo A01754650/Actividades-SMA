@@ -7,6 +7,12 @@ from time import sleep, time, process_time
 import numpy as np
 import random
 import sys
+import matplotlib.pyplot as plt
+
+def make_graph(steps):
+    agent_ids = list(range(len(steps)))
+    plt.plot(agent_ids, steps, marker='o', linestyle='-')
+    plt.savefig("line_plot.png")
 
 class AspiradoraAgent(Agent):
 
@@ -14,6 +20,7 @@ class AspiradoraAgent(Agent):
         super().__init__(unique_id, model)
         self.live = 1
         self.position = (0, 0)
+        self.steps_taken = 0
 
     def move(self):
         positions = self.model.grid.get_neighborhood(
@@ -38,6 +45,7 @@ class AspiradoraAgent(Agent):
         if len(cell) == 0:
             #print(new_position)
             self.position = new_position
+            self.steps_taken += 1
             self.model.grid.move_agent(self, new_position)
 
     def step(self):
@@ -65,7 +73,7 @@ class MapaModel(Model):
         self.grid = MultiGrid(width, height, True)
         self.schedule = SimultaneousActivation(self)
         self.cleaned_cells = 0
-        self.celdas_sucias = (width * height * self.dirty_percentage) // 100
+        self.celdas_sucias = (width * height*self.dirty_percentage)  // 100
         self.running = True  # Para la visualizacion usando navegador
         self.start_time = time()
         self.prev_time = self.start_time
@@ -103,34 +111,38 @@ class MapaModel(Model):
 
         cleaned_percentage = (self.cleaned_cells*100/self.celdas_sucias)
 
-        #print(f"{time() - self.prev_time}")
-        if time() - self.prev_time >= 3.5:
+        if time() - self.prev_time >= 1.5:
             print(f"Se ha limpiado el: {cleaned_percentage:.2f}% de celdas sucias")
             self.prev_time = time()
 
 
         if self.cleaned_cells == self.celdas_sucias:
-
-        self.steps += 1
-        if(self.cleaned_cells == self.celdas_sucias):
             self.end_time = time()
+            steps = [agent.steps_taken for agent in self.schedule.agents]
+            total_steps = sum(steps)
+            make_graph(steps)
             print(f'Tiempo transcurrido {self.end_time - self.start_time}')
             print(f'Todas las celdas se han limpiado {self.cleaned_cells}')
-            print(f'Numero de pasos: {self.steps}')
+            print(f'El total de pasos tomados fue: {total_steps}')
             self.running = False
-            sys.exit()
+            raise Exception
             
-        elif(self.max_time < (time() - self.start_time)):
-            print(f'El Tiempo ha terminado: {abs(self.end_time - self.start_time)}')
-            print(f'Todas las celdas limpias {self.cleaned_cells}')
-            print(f'Numero de pasos: {self.steps}')
+        elif self.max_time < time() - self.start_time:
+            steps = [agent.steps_taken for agent in self.schedule.agents]
+            total_steps = sum(steps)
+            print(f'El Tiempo ha terminado: {time()- self.start_time}')
+            print(f'Se limpio el {cleaned_percentage:.2f}% de celdas sucias')
+            print(f'El total de pasos tomados fue: {total_steps}')
             self.running = False
-            sys.exit()
+            raise Exception
             
              
 
 if __name__ == "__main__":
 
-    model = MapaModel(500, 500, 200, 50, 40)
+    model = MapaModel(100, 100, 10, 62, 1000)
     while True:
-        model.step()
+        try:
+            model.step()
+        except Exception as e:
+            break
