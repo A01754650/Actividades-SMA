@@ -120,7 +120,6 @@ class MapaModel(Model):
             self.end_time = time()
             steps = [agent.steps_taken for agent in self.schedule.agents]
             total_steps = sum(steps)
-            make_graph(steps)
             print(f'Tiempo transcurrido {self.end_time - self.start_time}')
             print(f'Todas las celdas se han limpiado {self.cleaned_cells}')
             print(f'El total de pasos tomados fue: {total_steps}')
