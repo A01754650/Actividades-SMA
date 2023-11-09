@@ -14,6 +14,77 @@ def make_graph(steps):
     plt.plot(agent_ids, steps, marker='o', linestyle='-')
     plt.savefig("line_plot.png")
 
+def run_batch(width, height, dirty_percentage, max_agents, step_size):
+    num_agents = []
+    time_elapsed = []
+    fps_elapsed = []
+    for i in range(1, max_agents + 1, step_size):
+        print(f"Prueba con {i} agentes: ")
+        model = MapaModel(width, height, i, dirty_percentage, 10000000)
+        fps = 0
+        while True:
+            try:
+                fps+=1
+                model.step()
+            except Exception as _:
+                break
+        print(f"-------------------------")
+        num_agents.append(i)
+        time_elapsed.append(model.time_elapsed)
+        fps_elapsed.append(fps)
+
+    fig, ax1 = plt.subplots()
+
+    ax1.set_xlabel('num_agents')
+    ax1.set_ylabel('time_elapsed', color='tab:blue')
+    ax1.plot(num_agents, time_elapsed, color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('fps_elapsed', color='tab:red')
+    ax2.plot(num_agents, fps_elapsed, color='tab:red')
+    ax2.tick_params(axis='y', labelcolor='tab:red')
+
+
+    plt.title(f'Number of Agents vs FPS Elapsed, {width=} and {height=} and {dirty_percentage}% of dirt')
+    plt.savefig("batch.png")
+    print(fps_elapsed)
+
+def run_batch_fps(width, height, dirty_percentage, max_agents, step_size):
+    num_agents = []
+    fps_elapsed = []
+    for i in range(1, max_agents + 1, step_size):
+        print(f"Prueba con {i} agentes: ")
+        model = MapaModel(width, height, i, dirty_percentage, 10000000)
+        fps = 0
+        while True:
+            try:
+                fps+=1
+                model.step()
+            except Exception as _:
+                break
+        print(f"-------------------------")
+        num_agents.append(i)
+        fps_elapsed.append(fps)
+
+    plt.plot(num_agents, time_elapsed, marker='o', linestyle='-')
+    plt.xlabel('Number of Agents')
+    plt.ylabel('Time Elapsed (units)')
+    plt.title(f'Number of Agents vs Time Elapsed, {width=} and {height=} and {dirty_percentage}% of dirt')
+    plt.savefig("batch.png")
+def run_individual(width, height, num_agents, dirty_percentage, max_time):
+    model = MapaModel(width, height, num_agents, dirty_percentage, max_time)
+    while True:
+        try:
+            model.step()
+        except Exception as _:
+            break
+
+    print(num_agents)
+    print(time_elapsed)
+
+
+
 class AspiradoraAgent(Agent):
 
     def __init__(self, unique_id, model):
@@ -78,6 +149,7 @@ class MapaModel(Model):
         self.start_time = time()
         self.prev_time = self.start_time
         self.end_time = 0
+        self.time_elapsed = 0
         
         
         for i in range(self.num_agents):
@@ -111,7 +183,7 @@ class MapaModel(Model):
 
         cleaned_percentage = (self.cleaned_cells*100/self.celdas_sucias)
 
-        if time() - self.prev_time >= 1.5:
+        if time() - self.prev_time >= 3.0:
             print(f"Se ha limpiado el: {cleaned_percentage:.2f}% de celdas sucias")
             self.prev_time = time()
 
@@ -120,7 +192,8 @@ class MapaModel(Model):
             self.end_time = time()
             steps = [agent.steps_taken for agent in self.schedule.agents]
             total_steps = sum(steps)
-            print(f'Tiempo transcurrido {self.end_time - self.start_time}')
+            self.time_elapsed = self.end_time - self.start_time
+            print(f'Tiempo transcurrido {self.time_elapsed}')
             print(f'Todas las celdas se han limpiado {self.cleaned_cells}')
             print(f'El total de pasos tomados fue: {total_steps}')
             self.running = False
@@ -129,19 +202,13 @@ class MapaModel(Model):
         elif self.max_time < time() - self.start_time:
             steps = [agent.steps_taken for agent in self.schedule.agents]
             total_steps = sum(steps)
-            print(f'El Tiempo ha terminado: {time()- self.start_time}')
+            self.time_elapsed = time() - self.start_time
+            print(f'El Tiempo ha terminado: {self.time_elapsed}')
             print(f'Se limpio el {cleaned_percentage:.2f}% de celdas sucias')
             print(f'El total de pasos tomados fue: {total_steps}')
             self.running = False
             raise Exception
             
              
-
 if __name__ == "__main__":
-
-    model = MapaModel(100, 100, 10, 62, 1000)
-    while True:
-        try:
-            model.step()
-        except Exception as e:
-            break
+    run_batch(100, 100, 30, 100, 5)
