@@ -32,8 +32,6 @@ class AspiradoraAgent(Agent):
                 cell = self.model.grid.get_cell_list_contents(new_position)
                 self.model.cleaned_cells += 1
                 break
-        #print(f'celdas limpias: {self.model.cleaned_cells}')
-        #print(f'celdas sucias: {self.model.celdas_sucias}')
 
         if len(cell) == 0:
             self.position = new_position
@@ -43,6 +41,7 @@ class AspiradoraAgent(Agent):
         self.move()
 
     def advance(self):
+
         print("",end="")
 
 
@@ -62,22 +61,20 @@ class MapaModel(Model):
         self.grid = MultiGrid(width, height, True)
         self.schedule = SimultaneousActivation(self)
         self.cleaned_cells = 0
-        self.celdas_sucias = 0
+        self.celdas_sucias = (width * height * self.dirty_percentage) // 100
         self.running = True  # Para la visualizacion usando navegador
         self.start_time = time()
+        self.prev_time = self.start_time
         self.end_time = 0
         
         
-        num_sucias = (width * height * self.dirty_percentage) // 100
-        self.celdas_sucias= num_sucias
         for i in range(self.num_agents):
             agent = AspiradoraAgent(i, self)
-            self.grid.place_agent(agent, (0,0))
+            self.grid.place_agent(agent, (1,1))
             self.schedule.add(agent)
 
         
-        num_sucias = int((width * height * self.dirty_percentage) // 100)
-        for _ in range(num_sucias):
+        for _ in range(self.celdas_sucias):
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             cell = self.grid.get_cell_list_contents((x, y))
@@ -98,8 +95,16 @@ class MapaModel(Model):
 
     def step(self):
         self.schedule.step()
-        
-        if(self.cleaned_cells == self.celdas_sucias):
+
+        cleaned_percentage = (self.cleaned_cells*100/self.celdas_sucias)
+
+        #print(f"{time() - self.prev_time}")
+        if time() - self.prev_time >= 3.5:
+            print(f"Se ha limpiado el: {cleaned_percentage:.2f}% de celdas sucias")
+            self.prev_time = time()
+
+
+        if self.cleaned_cells == self.celdas_sucias:
             self.end_time = time()
             print(f'Tiempo transcurrido {self.end_time - self.start_time}')
             self.running = False
@@ -108,6 +113,6 @@ class MapaModel(Model):
 
 
 if __name__ == "__main__":
-    model = MapaModel(100, 100, 50, 50, 40)
+    model = MapaModel(500, 500, 200, 50, 40)
     while True:
         model.step()
