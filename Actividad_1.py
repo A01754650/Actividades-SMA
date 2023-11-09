@@ -3,9 +3,10 @@
 from mesa import Agent, Model
 from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid 
-from time import sleep, time
+from time import sleep, time, process_time
 import numpy as np
 import random
+import sys
 
 class AspiradoraAgent(Agent):
 
@@ -25,9 +26,9 @@ class AspiradoraAgent(Agent):
                                     and abs(py - self.position[1]) <= 1])
         new_position = self.random.choice(possible_steps)
         cell = self.model.grid.get_cell_list_contents(new_position)
-        print(new_position)
+        #print(new_position)
         for trash in cell:
-            print(trash)
+            #print(trash)
             if type(trash) is BasuraAgent:
                 trash.live = 0
                 self.model.grid.remove_agent(trash)
@@ -35,8 +36,8 @@ class AspiradoraAgent(Agent):
                 break
             elif type(trash) is AspiradoraAgent:
                 new_position = self.position
-        print(f'celdas limpias: {self.model.cleaned_cells}')
-        print(f'celdas sucias: {self.model.celdas_sucias}')
+        #print(f'celdas limpias: {self.model.cleaned_cells}')
+        #print(f'celdas sucias: {self.model.celdas_sucias}')
                 
 
         self.position = new_position
@@ -67,6 +68,8 @@ class MapaModel(Model):
         self.cleaned_cells = 0
         self.celdas_sucias = 0
         self.running = True  # Para la visualizacion usando navegador
+        self.start_time = time()
+        self.end_time = 0
         
         
         num_sucias = (width * height * self.dirty_percentage) // 100
@@ -98,19 +101,16 @@ class MapaModel(Model):
 
     def step(self):
         self.schedule.step()
-        print(self.cleaned_cells)
         
         if(self.cleaned_cells == self.celdas_sucias):
+            self.end_time = time()
+            print(f'Tiempo transcurrido {self.end_time - self.start_time}')
             self.running = False
+            sys.exit()
+            
 
 
-
-
-
-
-
-
-
-        
-
- 
+if __name__ == "__main__":
+    model = MapaModel(100, 100, 50, 50, 40)
+    while True:
+        model.step()

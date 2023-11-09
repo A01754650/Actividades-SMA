@@ -38,7 +38,7 @@ server = ModularServer(MapaModel,
                        [grid],
                        "Cleaning the grid",
                        {"width":ancho, "height":alto, 
-                        "num_agents": 5, "dirty_percentage": 
+                        "num_agents": 50, "dirty_percentage": 
                         50, "max_steps": 40})
 server.port = 8521 # The default
 server.launch()
