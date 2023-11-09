@@ -13,7 +13,12 @@ class AspiradoraAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.live = 1
+<<<<<<< HEAD
         self.position = (1, 1)
+=======
+        self.cleaned = 0
+        self.position = (0, 0)
+>>>>>>> e22bfa0 (hola)
 
     def move(self):
         positions = self.model.grid.get_neighborhood(
@@ -28,11 +33,17 @@ class AspiradoraAgent(Agent):
         cell = self.model.grid.get_cell_list_contents(new_position)
         #print(new_position)
         for trash in cell:
+<<<<<<< HEAD
             #print(trash)
             if type(trash) is BasuraAgent:
                 trash.live = 0
                 self.model.grid.remove_agent(trash)
                 self.model.cleaned_cells += 1
+=======
+            if type(trash) is BasuraAgent:
+                trash.live = 0
+                self.cleaned+=1
+>>>>>>> e22bfa0 (hola)
                 break
             elif type(trash) is AspiradoraAgent:
                 new_position = self.position
@@ -79,7 +90,11 @@ class MapaModel(Model):
             self.grid.place_agent(agent, (0,0))
             self.schedule.add(agent)
 
+<<<<<<< HEAD
         
+=======
+        num_sucias = int((width * height * self.dirty_percentage) // 100)
+>>>>>>> e22bfa0 (hola)
         for _ in range(num_sucias):
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
