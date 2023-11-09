@@ -3,6 +3,7 @@
 from mesa import Agent, Model
 from mesa.time import SimultaneousActivation
 from mesa.space import MultiGrid 
+from time import sleep
 import numpy as np
 import random
 
@@ -41,9 +42,6 @@ class AspiradoraAgent(Agent):
         print("",end="")
 
 
-class Basuara():
-    def __init__(self, state):
-        self.state = state 
 
 class BasuraAgent(Agent):
 
@@ -72,11 +70,23 @@ class MapaModel(Model):
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             cell = self.grid.get_cell_list_contents((x, y))
+            print(not cell)
+            res = not cell
             if not cell:
                 dirt = BasuraAgent((x,y),self, 1)
                 self.grid.place_agent(dirt, (x, y))
-                #self.schedule.add(dirt)
+            else:
+                while res != True:
+                    x = random.randrange(self.grid.width)
+                    y = random.randrange(self.grid.height)
+                    cell = self.grid.get_cell_list_contents((x, y))
+                    res = not cell
+                    if not cell:
+                        dirt = BasuraAgent((x,y),self, 1)
+                        self.grid.place_agent(dirt, (x, y))
 
+                    
+                    
     def step(self):
         self.schedule.step()
 

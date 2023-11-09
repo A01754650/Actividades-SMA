@@ -4,6 +4,8 @@ AUN NO SE QUE ONDA AQUI
 from Actividad_1 import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
+from time import sleep
+
 
 
 def agent_portrayal(agent):
@@ -29,14 +31,14 @@ def agent_portrayal(agent):
 
     return portrayal
 
-ancho = 28
-alto = 28
+ancho = 5
+alto = 6
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
 server = ModularServer(MapaModel,
                        [grid],
                        "Cleaning the grid",
                        {"width":ancho, "height":alto, 
-                        "num_agents": 100, "dirty_percentage": 
-                        70, "max_steps": 40})
+                        "num_agents": 5, "dirty_percentage": 
+                        50, "max_steps": 40})
 server.port = 8521 # The default
 server.launch()
