@@ -33,11 +33,11 @@ def agent_portrayal(agent):
 
     return portrayal
 
-ancho = 40
-alto = 40
+ancho = 10
+alto = 10
 num_agents = 50 
 dirty_percentage = 90 
-max_steps = 40
+max_time = 40
 grid = CanvasGrid(agent_portrayal, ancho, alto, 600, 600)
 server = ModularServer(
     MapaModel,
@@ -48,7 +48,7 @@ server = ModularServer(
         "height": alto,
         "num_agents": num_agents,
         "dirty_percentage": dirty_percentage,
-        "max_steps": max_steps,
+        "max_time": max_time,
     },
 )
 server.port = 8521  # The default

@@ -13,7 +13,7 @@ class AspiradoraAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.live = 1
-        self.position = (1, 1)
+        self.position = (0, 0)
 
     def move(self):
         positions = self.model.grid.get_neighborhood(
@@ -21,10 +21,12 @@ class AspiradoraAgent(Agent):
                 moore=True,
                 include_center=False
                 )
+        
         possible_steps = tuple([(px, py) for (px, py) in positions 
                                     if abs(px - self.position[0]) <=1 
                                     and abs(py - self.position[1]) <= 1])
         new_position = self.random.choice(possible_steps)
+        
         cell = self.model.grid.get_cell_list_contents(new_position)
         for value in cell:
             if type(value) is BasuraAgent:
@@ -36,6 +38,7 @@ class AspiradoraAgent(Agent):
         #print(f'celdas sucias: {self.model.celdas_sucias}')
 
         if len(cell) == 0:
+            #print(new_position)
             self.position = new_position
             self.model.grid.move_agent(self, new_position)
 
@@ -55,10 +58,11 @@ class BasuraAgent(Agent):
 
 class MapaModel(Model):
     
-    def __init__(self, width, height, num_agents, dirty_percentage, max_steps):
+    def __init__(self, width, height, num_agents, dirty_percentage, max_time):
         self.num_agents = num_agents
         self.dirty_percentage = dirty_percentage
-        self.max_steps = max_steps
+        self.max_time = max_time
+        self.steps = 0
         self.grid = MultiGrid(width, height, True)
         self.schedule = SimultaneousActivation(self)
         self.cleaned_cells = 0
@@ -72,7 +76,7 @@ class MapaModel(Model):
         self.celdas_sucias= num_sucias
         for i in range(self.num_agents):
             agent = AspiradoraAgent(i, self)
-            self.grid.place_agent(agent, (0,0))
+            self.grid.place_agent(agent, (1,1))
             self.schedule.add(agent)
 
         
@@ -98,16 +102,25 @@ class MapaModel(Model):
 
     def step(self):
         self.schedule.step()
-        
+        self.steps += 1
         if(self.cleaned_cells == self.celdas_sucias):
             self.end_time = time()
             print(f'Tiempo transcurrido {self.end_time - self.start_time}')
+            print(f'Todas las celdas se han limpiado {self.cleaned_cells}')
+            print(f'Numero de pasos: {self.steps}')
             self.running = False
             sys.exit()
             
-
+        elif(self.max_time < (time() - self.start_time)):
+            print(f'El Tiempo ha terminado: {abs(self.end_time - self.start_time)}')
+            print(f'Todas las celdas limpias {self.cleaned_cells}')
+            print(f'Numero de pasos: {self.steps}')
+            self.running = False
+            sys.exit()
+            
+             
 
 if __name__ == "__main__":
-    model = MapaModel(100, 100, 50, 50, 40)
+    model = MapaModel(10, 10, 5, 50, 15)
     while True:
         model.step()
