@@ -34,12 +34,10 @@ def run_batch(width, height, dirty_percentage, max_agents, step_size):
         print(f"Prueba con {i} agentes: ")
         model = MapaModel(width, height, i, dirty_percentage, 10000000)
         fps = 0
-        while True:
-            try:
-                fps += 1
-                model.step()
-            except Exception as _:
-                break
+        while model.running:
+            fps += 1
+            model.step()
+                
         print("-------------------------")
         num_agents.append(i)
         time_elapsed.append(model.time_elapsed)
@@ -71,12 +69,9 @@ def run_batch_fps(width, height, dirty_percentage, max_agents, step_size):
         print(f"Prueba con {i} agentes: ")
         model = MapaModel(width, height, i, dirty_percentage, 10000000)
         fps = 0
-        while True:
-            try:
-                fps += 1
-                model.step()
-            except Exception as _:
-                break
+        while model.running:     
+            fps += 1
+            model.step()
         print(f"-------------------------")
         num_agents.append(i)
         fps_elapsed.append(fps)
@@ -93,11 +88,9 @@ def run_batch_fps(width, height, dirty_percentage, max_agents, step_size):
 def run_individual(width, height, num_agents, dirty_percentage, max_time):
     # Function to test individual models
     model = MapaModel(width, height, num_agents, dirty_percentage, max_time)
-    while True:
-        try:
+    while model.running:
             model.step()
-        except Exception as _:
-            break
+            
 
 
 class VacuumCleaner(Agent):
@@ -197,7 +190,6 @@ class MapaModel(Model):
                         self.grid.place_agent(dirt, (x, y))
 
     def step(self):
-        self.schedule.step()
         cleaned_percentage = self.cleaned_cells * 100 / self.celdas_sucias
 
         # Update the user on how the progress is going
@@ -215,7 +207,6 @@ class MapaModel(Model):
             print(f"Todas las celdas se han limpiado {self.cleaned_cells}")
             print(f"El total de pasos tomados fue: {total_steps}")
             self.running = False
-            raise Exception
 
         #If we exceed the time limit we stop the program
         elif self.max_time < time() - self.start_time:
@@ -226,10 +217,12 @@ class MapaModel(Model):
             print(f"Se limpio el {cleaned_percentage:.2f}% de celdas sucias")
             print(f"El total de pasos tomados fue: {total_steps}")
             self.running = False
-            raise Exception
+            #raise Exception
+        self.schedule.step()
+
 
 
 if __name__ == "__main__":
     run_individual(100,100,20,30,10000)
-    #run_batch(100, 100, 30, 20, 5)
-    #run_batch_fps(100, 100, 30, 20, 5)
+    run_batch(100, 100, 30, 20, 5)
+    run_batch_fps(100, 100, 30, 20, 5)
