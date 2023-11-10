@@ -223,6 +223,6 @@ class MapaModel(Model):
 
 
 if __name__ == "__main__":
-    run_individual(100,100,20,30,10000)
-    run_batch(100, 100, 30, 20, 5)
+    #run_individual(100,100,20,30,10000)
+    #run_batch(100, 100, 30, 20, 5)
     run_batch_fps(100, 100, 30, 20, 5)
